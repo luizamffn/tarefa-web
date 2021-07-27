@@ -11,24 +11,86 @@
         <v-text-field v-model="titulo" label="Título" outlined/>
 
         <div style="width:fit-content; float:right">
-          <v-btn depressed color="orange darken-2" v-on:click="recuperarTarefas">
+          <v-btn depressed color="orange darken-2" v-on:click="recuperarTarefas()">
             <v-icon left>
               mdi-eraser
             </v-icon>
             Limpar
           </v-btn>  
-          <v-btn v-on:click="pesquisar" color="primary" style="margin-left: 10px">
+          <v-btn v-on:click="pesquisar()" color="primary" style="margin-left: 10px">
             <v-icon left>
               mdi-magnify
             </v-icon>
             Consultar
           </v-btn>
-          <v-btn color="green darken-2" style="margin-left: 10px">
-            <v-icon left>
-              mdi-plus
-            </v-icon>
-            Nova Tarefa
-          </v-btn>
+          <v-dialog v-model="showDialogNovaTarefa" persistent max-width="50%">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="green darken-2" style="margin-left: 10px" v-bind="attrs" v-on="on">
+                <v-icon left>
+                  mdi-plus
+                </v-icon>
+                Nova Tarefa
+              </v-btn>
+              
+            </template>
+            <v-card>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col class="mb-4" cols="12">
+                      <h5 class="display-1 font-weight-bold">
+                        {{editar == true? "Editar Tarefa": "Nova Tarefa"}}
+                      </h5>
+
+                      <v-divider style="margin-bottom:20px"></v-divider>
+
+                      <v-row>
+                        <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
+                          <v-text-field v-model="tarefa.titulo" label="Titulo" outlined></v-text-field>
+                        </v-col>
+
+                        <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
+                          <v-text-field v-model="tarefa.descricao" label="Descrição" outlined></v-text-field>
+                        </v-col>
+                      </v-row>
+
+                      <v-row>
+                        <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
+                          <v-select v-model="tarefa.statusTarefa" 
+                            :items="items" item-text="status"
+                            item-value="value" label="Status" outlined ></v-select>
+                        </v-col>
+                      </v-row>
+
+                      <v-btn v-on:click="showDialogNovaTarefa=false, editar=false">
+                          <v-icon left style="color:black">
+                            mdi-keyboard-return
+                          </v-icon>
+
+                          <div style="color:black" >
+                            Voltar
+                          </div>
+                      </v-btn>
+                      <div style="width:fit-content; float:right">  
+                        <v-btn v-if="editar == false" color="green darken-2" v-on:click="cadastrar()">
+                          <v-icon left>
+                            mdi-content-save
+                          </v-icon>
+                          Salvar
+                        </v-btn>
+                        <v-btn v-else color="green darken-2" v-on:click="atualizar()">
+                          <v-icon left>
+                            mdi-content-save
+                          </v-icon>
+                          Editar
+                        </v-btn>
+                      </div>  
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
         </div>  
 
         <v-card tile style="width: -webkit-fill-available; margin-top: 50px;">
@@ -51,18 +113,18 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in tarefas" :key="item.name" >
+                  <tr v-for="item in tarefas" :key="item.id" >
                     <td>{{ item.titulo }}</td>
                     <td>{{ item.descricao }}</td>
                     <td>{{ item.dataCriacao }}</td>
                     <td>
-                      <v-icon color="yellow darken-2" style="font-size: 20px !important;">
+                      <v-icon color="yellow darken-2" style="font-size: 20px !important;" v-on:click="editar=true, tarefa=item, showDialogNovaTarefa=true">
                         mdi-square-edit-outline
                       </v-icon>
 
-                      <v-dialog :key="item.id" v-model="showDialogDelet" persistent max-width="300">
+                      <v-dialog v-model="showDialogDelet" persistent max-width="300" :retain-focus="false">
                         <template v-slot:activator="{ on, attrs }">
-                          <v-icon left v-bind="attrs" v-on="on" color="red darken-2" style="font-size: 20px !important;">
+                          <v-icon left v-bind="attrs" v-on="on" color="red darken-2" style="font-size: 20px !important;" v-on:click="tarefa=item">
                               mdi-delete
                             </v-icon>
                         </template>
@@ -72,10 +134,10 @@
                           </v-card-title>
                           <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn style="background-color: red;" text @click="deletar(item)" >
+                            <v-btn style="background-color: red;" text @click="deletar()" >
                               Sim
                             </v-btn>
-                            <v-btn style="background-color: green;" text @click="showDialogDelet = false" >
+                            <v-btn style="background-color: green;" text @click="showDialogDelet=false" >
                               Não
                             </v-btn>
                           </v-card-actions>
@@ -89,50 +151,6 @@
             </v-simple-table>
         </v-card>
       </v-col>
-
-      <v-col class="mb-4" cols="12">
-        <h5 class="display-1 font-weight-bold">
-          Nova Tarefa
-        </h5>
-
-        <v-divider style="margin-bottom:20px"></v-divider>
-
-        <v-row>
-          <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
-            <v-text-field v-model="tarefa.titulo" label="Titulo" outlined></v-text-field>
-          </v-col>
-
-          <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
-            <v-text-field v-model="tarefa.descricao" label="Descrição" outlined></v-text-field>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
-            <v-select v-model="tarefa.statusTarefa" 
-              :items="items" item-text="status"
-              item-value="value" label="Status" outlined ></v-select>
-          </v-col>
-        </v-row>
-
-        <v-btn>
-            <v-icon left style="color:black">
-              mdi-keyboard-return
-            </v-icon>
-
-            <div style="color:black">
-            Voltar
-            </div>
-        </v-btn>
-        <div style="width:fit-content; float:right">  
-          <v-btn color="green darken-2" v-on:click="cadastrar">
-            <v-icon left>
-              mdi-content-save
-            </v-icon>
-            Salvar
-          </v-btn>
-        </div>  
-      </v-col>
     </v-row>
 
   </v-container>
@@ -141,11 +159,13 @@
 <script>
   export default {
     name: 'HelloWorld',
-    showDialogDelet: false,
     data: () => ({
       titulo: "",
       tarefa : {titulo: '', descricao: '', statusTarefa: ''},
       tarefas: [],
+      showDialogNovaTarefa: false,
+      showDialogDelet: false,
+      editar: false,
       items: [
           { status: 'Aberta', value: 'ABERTA' },
           { status: 'Em andamento', value: 'EM_ANDAMENTO' },
@@ -162,6 +182,7 @@
         that.axios.get("http://localhost:8080/tarefas")
         .then(function (response) {
           that.tarefas = response.data.content
+          // console.log(that.tarefas)
         })
         .catch(function (error) {
           console.log(error)
@@ -169,6 +190,7 @@
       },
       cadastrar: function(){
         var that = this
+        console.log(that.tarefa)
         that.axios.post("http://localhost:8080/tarefas", that.tarefa)
         .then(function (response) {
           console.log(response)
@@ -188,13 +210,27 @@
           console.log(error)
         })
       },
-      deletar: function(item){
+      deletar: function(){
         var that = this
-        that.axios.delete("http://localhost:8080/tarefas/" + item.id)
+        that.axios.delete("http://localhost:8080/tarefas/" + that.tarefa.id)
         .then(function (response) {
           console.log(response)
-          that.showDialogDelet = false
           that.recuperarTarefas()
+          that.showDialogDelet = false
+
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+      },
+      atualizar: function(){
+        var that = this
+        that.axios.put("http://localhost:8080/tarefas/" + that.tarefa.id, that.tarefa)
+        .then(function (response) {
+          console.log(response)
+          that.recuperarTarefas()
+          that.showDialogNovaTarefa = false
+          that.editar = false
         })
         .catch(function (error) {
           console.log(error)
