@@ -1,19 +1,9 @@
 # tarefa-web
 
 ## Descrição do Projeto
-  Construir uma aplicação de cadastro de tarefas
+  Front-end  para se comunicar com a API de tarefas https://github.com/luizamffn/api-tarefas
   
-## Estrutura do Projeto
-  Uma tarefa possui os seguintes atributos:
-  <ul>Titulo</ul>
-  <ul>Descrição</ul>
-  <ul>Data Criação</ul>
-  <ul>Data Conclusão</ul>
-  <ul>Status</ul>
-    <ul><ul>ABERTA</ul></ul>
-    <ul><ul>EM ANDAMENTO</ul></ul>
-    <ul><ul>CONCLUÍDA</ul></ul>
-    
+## Funcionalidades    
   Uma tarefa poderá:
   
   <ul> Ser excluída mediante confirmação de exclusão;</ul>
@@ -31,6 +21,9 @@
 
 <ul>Instalar o Node.js (https://nodejs.org/en/)</ul>
 <ul>De preferência Instalar uma IDE (Ex: https://code.visualstudio.com/)</ul>
+
+## Dependência
+Baixar a API-Tarefas https://github.com/luizamffn/api-tarefas e roda esta aplicação antes dessa
 
 ## Project setup
 ```
