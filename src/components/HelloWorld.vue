@@ -36,6 +36,7 @@
             <v-card>
               <v-card-text>
                 <v-container>
+                <v-form ref="form" lazy-validation>
                   <v-row>
                     <v-col class="mb-4" cols="12">
                       <h5 class="display-1 font-weight-bold">
@@ -46,11 +47,16 @@
 
                       <v-row>
                         <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
-                          <v-text-field v-model="tarefa.titulo" label="Titulo" outlined></v-text-field>
+                          <v-text-field v-model="tarefa.titulo" label="Titulo" outlined
+                            :rules="tituloRules"
+                            required>
+                          </v-text-field>
                         </v-col>
 
                         <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
-                          <v-text-field v-model="tarefa.descricao" label="Descrição" outlined></v-text-field>
+                          <v-text-field v-model="tarefa.descricao" label="Descrição" outlined
+                            :rules="descricaoRules"
+                            required>></v-text-field>
                         </v-col>
                       </v-row>
 
@@ -58,7 +64,9 @@
                         <v-col cols="12" sm="6" style="padding-top:0px; padding-bottom:0px">
                           <v-select v-model="tarefa.statusTarefa" 
                             :items="items" item-text="status"
-                            item-value="value" label="Status" outlined ></v-select>
+                            item-value="value" label="Status" outlined 
+                            :rules="statusRules"
+                            required></v-select>
                         </v-col>
                       </v-row>
 
@@ -72,7 +80,7 @@
                           </div>
                       </v-btn>
                       <div style="width:fit-content; float:right">  
-                        <v-btn v-if="editar == false" color="green darken-2" v-on:click="cadastrar()">
+                        <v-btn v-if="editar == false" color="green darken-2"  @click="validate" v-on:click="cadastrar()">
                           <v-icon left>
                             mdi-content-save
                           </v-icon>
@@ -87,6 +95,7 @@
                       </div>  
                     </v-col>
                   </v-row>
+                  </v-form>
                 </v-container>
               </v-card-text>
             </v-card>
@@ -170,13 +179,27 @@
           { status: 'Aberta', value: 'ABERTA' },
           { status: 'Em andamento', value: 'EM_ANDAMENTO' },
           { status: 'Concluída', value: 'CONCLUIDA' },
-        ],
+      ],
+      tituloRules: [
+        v => !!v || 'O Título é obrigatório.',
+        v => v.length >= 5 || 'O Título tem que ter no mínimo 5 caracteres',
+      ],
+      descricaoRules: [
+        v => !!v || 'A Descrição é obrigatório.',
+        v => v.length >= 10 || 'A Descrição tem que ter no mínimo 10 caracteres',
+      ],
+      statusRules: [
+        v => !!v || 'O status é obrigatório.'
+      ],
 
     }),
     mounted () {
       this.recuperarTarefas()
     },
     methods: {
+      validate () {
+        this.$refs.form.validate()
+      },
       recuperarTarefas: function(){
         var that = this
         that.axios.get("http://localhost:8080/tarefas")
